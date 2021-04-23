@@ -1,14 +1,16 @@
-package se.lockin.microservices.core.recommendation;
+package se.lockin.microservices.core;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @ComponentScan("se.lockin")
-public class RecommendationServiceApplication {
+public class ProductServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(RecommendationServiceApplication.class, args);
+		SpringApplication.run(ProductServiceApplication.class, args);
 	}
+
 }
