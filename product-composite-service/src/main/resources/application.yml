@@ -2,16 +2,16 @@ api:
 
   common:
     version: 1.0.0
-    title: products API
-    description: API of products
-    termsOfServiceUrl: www.term-service.com
+    title: Sample API
+    description: Description of the API...
+    termsOfServiceUrl: MINE TERMS OF SERVICE URL
     license: License
-    licenseUrl: www.myurl-license.com
+    licenseUrl: MY LICENSE URL
 
     contact:
-      name: Lockin
-      url: https://www.linkedin.com/in/javier-almario
-      email: javieralmario12@gmail.com
+      name: Contact
+      url: My
+      email: me@mail.com
 
   product-composite:
 
@@ -19,37 +19,48 @@ api:
       description: Returns a composite view of the specified product id
       notes: |
         If the requested product id is found the method will return information regarding:
-        1. Base product information
+        1. Product information
         1. Reviews
         1. Recommendations
-        1. Service Addresses\n(technical information regarding the addresses of the microservices that created the response)
+        1. Service Addresses
+        (technical information regarding the addresses of the microservices that created the response)
 
-        In the following cases, only a partial response be created (used to simplify testing of error conditions)
+        1. If no product information is found, a <b>404 - Not Found</b> error will be returned
+        1. In no recommendations or reviews are found for a product, a partial response will be returned
 
-        200 - Ok, but no recommendations will be returned
+    create-composite-product:
+      description: Creates a composite product
+      notes: |
+        The composite product information posted to the API will be splitted up and stored as separate product-info, recommendation and review entities.
 
-        200 - Ok, but no reviews will be returned
+        1. If a product with the same productId as specified in the posted information already exists,
+           an <b>422 - Unprocessable Entity</b> error with a "duplicate key" error message will be returned
 
-        400 - A <b>Bad Request</b> error will be returned
+    delete-composite-product:
+      description: Deletes a product composite
+      notes: |
+        Entities for product information, recommendations and reviews related to the specificed productId will be deleted.
+        The implementation of the delete method is idempotent, i.e. it can be called several times with the same response.
+        This means that a delete request of a non existing product will return <b>200 Ok</b>.
 
-        404 - A <b>Not Found</b> error will be returned
+server.port: 7000
+server.error.include-message: always
 
-        422 - An <b>Unprocessable Entity</b> error will be returned
-
-
-
-server:
-    port: 7000
 app:
-    product-service:
-        host: localhost
-        port: 7001
-    recommendation-service:
-        host: localhost
-        port: 7002
-    review-service:
-        host: localhost 
-        port: 7003
+  product-service:
+    host: localhost
+    port: 7001
+  recommendation-service:
+    host: localhost
+    port: 7002
+  review-service:
+    host: localhost
+    port: 7003
+
+logging:
+  level:
+    root: INFO
+    se.magnus: DEBUG
 
 ---
 spring.profiles: docker
