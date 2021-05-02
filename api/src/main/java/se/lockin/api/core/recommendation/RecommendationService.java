@@ -8,10 +8,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import reactor.core.publisher.Flux;
+
 public interface RecommendationService {
 
 	@GetMapping(value = "/recommendation", produces = "application/json")
-	List<Recommendation> getRecommendations(@RequestParam(value = "productId", required = true) int productId);
+	Flux<Recommendation> getRecommendations(@RequestParam(value = "productId", required = true) int productId);
 
 	@PostMapping(value = "/recommendation", consumes = "application/json", produces = "application/json")
 	Recommendation createRecommendation(@RequestBody Recommendation body);
