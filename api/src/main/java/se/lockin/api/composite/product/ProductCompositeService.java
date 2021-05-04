@@ -20,7 +20,7 @@ public interface ProductCompositeService {
 			@ApiResponse(code = 400, message = "Bad Request, invalid format of the request. See response message for more information."),
 			@ApiResponse(code = 422, message = "Unprocessable entity, input parameters caused the processing to fail. See response message for more information.") })
 	@PostMapping(value = "/product-composite", consumes = "application/json")
-	void createCompositeProduct(@RequestBody ProductAggregate body);
+	Mono<Void> createCompositeProduct(@RequestBody ProductAggregate body);
 
 	@ApiOperation(value = "${api.product-composite.get-composite-product.description}", notes = "${api.product-composite.get-composite-product.notes}")
 	@ApiResponses(value = {
@@ -35,5 +35,5 @@ public interface ProductCompositeService {
 			@ApiResponse(code = 400, message = "Bad Request, invalid format of the request. See response message for more information."),
 			@ApiResponse(code = 422, message = "Unprocessable entity, input parameters caused the processing to fail. See response message for more information.") })
 	@DeleteMapping(value = "/product-composite/{productId}")
-	void deleteCompositeProduct(@PathVariable int productId);
+	Mono<Void> deleteCompositeProduct(@PathVariable int productId);
 }
