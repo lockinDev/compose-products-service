@@ -9,11 +9,14 @@ import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.RestController;
+
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import reactor.core.publisher.Mono;
 import se.lockin.api.composite.product.*;
 import se.lockin.api.core.product.Product;
 import se.lockin.api.core.recommendation.Recommendation;
 import se.lockin.api.core.review.Review;
+import se.lockin.util.exceptions.NotFoundException;
 import se.lockin.util.http.ServiceUtil;
 
 import java.net.URL;
@@ -75,16 +78,30 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
     }
 
     @Override
-    public Mono<ProductAggregate> getCompositeProduct(int productId) {
+    public Mono<ProductAggregate> getCompositeProduct(int productId, int delay, int faultPercent) {
 
         return Mono.zip(
                 values -> createProductAggregate((SecurityContext) values[0], (Product) values[1], (List<Recommendation>) values[2], (List<Review>) values[3], serviceUtil.getServiceAddress()),
                 ReactiveSecurityContextHolder.getContext().defaultIfEmpty(nullSC),
-                integration.getProduct(productId),
+                integration.getProduct(productId, delay, faultPercent)
+                    .onErrorReturn(CallNotPermittedException.class, getProductFallbackValue(productId)),
                 integration.getRecommendations(productId).collectList(),
                 integration.getReviews(productId).collectList())
             .doOnError(ex -> LOG.warn("getCompositeProduct failed: {}", ex.toString()))
             .log();
+    }
+    
+    private Product getProductFallbackValue(int productId) {
+
+        LOG.warn("Creating a fallback product for productId = {}", productId);
+
+        if (productId == 13) {
+            String errMsg = "Product Id: " + productId + " not found in fallback cache!";
+            LOG.warn(errMsg);
+            throw new NotFoundException(errMsg);
+        }
+
+        return new Product(productId, "Fallback product" + productId, productId, serviceUtil.getServiceAddress());
     }
 
     @Override
